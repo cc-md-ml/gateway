@@ -10,6 +10,7 @@ import io
 import uvicorn
 import logging
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -21,10 +22,22 @@ async def root():
 
 custom_objects = {'KerasLayer': hub.KerasLayer}
 
+# Load model from TensorFlow Hub
+# model_url = "https://tfhub.dev/google/imagenet/resnet_v2_50/classification/5"
+# logger.info("Loading model from TensorFlow Hub...")
+# try:
+#     model = hub.load(model_url)
+#     logger.info("Model loaded successfully.")
+# except Exception as e:
+#     logger.error(f"Error loading model: {e}")
+#     model = None
+
 try:
     logger.info("Loading model...")
-    with custom_object_scope(custom_objects):
-        model = load_model("assets/best_model.h5")
+    model = tf.keras.models.load_model(
+       ('assets/best_model.h5'),
+       custom_objects={'KerasLayer':hub.KerasLayer}
+)
     logger.info("Model loaded successfully.")
 except Exception as e:
     logger.error(f"Error loading model: {e}")
@@ -40,6 +53,8 @@ def preprocess_image(image: Image.Image, imgsize: int = 240) -> np.ndarray:
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
+    if model is None:
+        return JSONResponse(content={"error": "Model is not loaded"}, status_code=500)
     try:
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
@@ -47,11 +62,11 @@ async def predict(file: UploadFile = File(...)):
         processed_image = preprocess_image(image)
 
         logger.info("Making prediction...")
-        prediction = model.predict(processed_image)
+        predictions = model(processed_image)
         logger.info("Prediction made successfully.")
 
-        predicted_class = np.argmax(prediction, axis=1).tolist()
-        confidence = np.max(prediction, axis=1).tolist()
+        predicted_class = np.argmax(predictions, axis=1).tolist()
+        confidence = np.max(predictions, axis=1).tolist()
 
         return JSONResponse(content={
             "predicted_class": predicted_class,
