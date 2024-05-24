@@ -22,4 +22,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 COPY ./src /code/src
 
-CMD ["fastapi", "run", "app/main.py", ,"--proxy-headers", "--port", "8000"]
+CMD fastapi run src/main.py --proxy-headers --port 8000
