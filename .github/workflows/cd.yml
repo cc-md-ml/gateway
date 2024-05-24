@@ -8,6 +8,7 @@ on:
   push:
     branches:
       - main
+      - feat/ci-cd
   
 
 jobs:
@@ -30,7 +31,7 @@ jobs:
     - name: Build Docker Image
       run: |
         docker build \
-            --build-arg PRODUCTION=${{ secrets.PRODUCTION }} \
+            --build-arg ENVIRONMENT=${{ secrets.PRODUCTION }} \
             --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
             --build-arg DB_URL=${{ secrets.DB_URL }} \
             --build-arg DB_USERNAME=${{ secrets.DB_USERNAME }} \
