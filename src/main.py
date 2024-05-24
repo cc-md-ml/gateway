@@ -1,8 +1,6 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 import tensorflow as tf
-from tensorflow.keras.models import load_model
-from tensorflow.keras.utils import custom_object_scope
 import tensorflow_hub as hub
 from PIL import Image
 import numpy as np
@@ -23,24 +21,24 @@ async def root():
 custom_objects = {'KerasLayer': hub.KerasLayer}
 
 # Load model from TensorFlow Hub
-# model_url = "https://tfhub.dev/google/imagenet/resnet_v2_50/classification/5"
-# logger.info("Loading model from TensorFlow Hub...")
-# try:
-#     model = hub.load(model_url)
-#     logger.info("Model loaded successfully.")
-# except Exception as e:
-#     logger.error(f"Error loading model: {e}")
-#     model = None
-
+model_url = "https://tfhub.dev/google/imagenet/resnet_v2_50/classification/5"
+logger.info("Loading model from TensorFlow Hub...")
 try:
-    logger.info("Loading model...")
-    model = tf.keras.models.load_model(
-       ('assets/best_model.h5'),
-       custom_objects={'KerasLayer':hub.KerasLayer}
-)
+    model = hub.load(model_url)
     logger.info("Model loaded successfully.")
 except Exception as e:
     logger.error(f"Error loading model: {e}")
+    model = None
+
+# try:
+#     logger.info("Loading model...")
+#     model = tf.keras.models.load_model(
+#        ('assets/best_model.h5'),
+#        custom_objects={'KerasLayer':hub.KerasLayer}
+# )
+#     logger.info("Model loaded successfully.")
+# except Exception as e:
+#     logger.error(f"Error loading model: {e}")
 
 def preprocess_image(image: Image.Image, imgsize: int = 240) -> np.ndarray:
     """
