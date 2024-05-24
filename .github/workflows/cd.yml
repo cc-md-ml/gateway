@@ -1,0 +1,28 @@
+name: Service Deployment
+
+
+on:
+  pull_request:
+    types:
+      - closed
+  push:
+    branches:
+      - main
+  
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout closed
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to Docker Hub
+      run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.REGISTRY_USER }} --password-stdin docker.io
+
+    - name: Set Docker BuildKit
+      run: export DOCKER_BUILDKIT=1
