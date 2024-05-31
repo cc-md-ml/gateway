@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from auth.routes import router as auth_router
+from .auth.routes import router as auth_router
 
 
 global_router = APIRouter()

@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from routes import global_router
+from .routes import global_router
 # from auth.router import router as auth_router
 
 
