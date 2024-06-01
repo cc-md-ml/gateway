@@ -1,8 +1,11 @@
-from fastapi import APIRouter
+from fastapi import (
+    APIRouter, Response
+)
 
 from src.auth.service import AuthService
 from src.auth.schemas import (
-    RegisterRequest, LoginRequest
+    RegisterRequest, LoginRequest,
+    AuthResponse
 )
 
 
@@ -11,8 +14,8 @@ SERVICE = AuthService()
 
 router = APIRouter(
     prefix="/auth",
-    responses={ 404: { 
-        "message": "Not found" } 
+    responses={ 
+        404: { "message": "Not found" } 
     },
 )
 
@@ -23,10 +26,13 @@ router = APIRouter(
         400: { "description": "Invalid registration credentials." },
     }
 )
-async def register(body: RegisterRequest):
-  # TODO: implement register service
-    res = SERVICE.register()
-    return res
+async def register(body: RegisterRequest) -> Response:
+    # TODO: implement register service
+    res: AuthResponse = SERVICE.register(body)
+    return Response(
+        content=res.description,
+        status_code=res.status,
+    )
 
 
 @router.post(
@@ -35,8 +41,11 @@ async def register(body: RegisterRequest):
         401: { "description": "Invalid username or password." },
     },
 )
-async def login(body: LoginRequest):
+async def login(body: LoginRequest) -> Response:
     # TODO: implement login service
-    res = SERVICE.login()
-    return res
+    res = SERVICE.login(body)
+    return Response(
+        content=res.description,
+        status_code=res.status,
+    )
 
