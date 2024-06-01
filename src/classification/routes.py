@@ -1,7 +1,7 @@
 from fastapi import File, HTTPException, UploadFile, APIRouter
 from fastapi.responses import JSONResponse
 
-from classification.services.image_prediction_service import ImagePredictionService
+from src.classification.services.image_prediction_service import ImagePredictionService
 
 router = APIRouter(
     responses={ 404: { 
