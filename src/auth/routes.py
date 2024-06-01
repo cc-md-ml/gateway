@@ -1,8 +1,12 @@
 from fastapi import APIRouter
 
-from .schemas import (
+from src.auth.service import AuthService
+from src.auth.schemas import (
     RegisterRequest, LoginRequest
 )
+
+
+SERVICE = AuthService()
 
 
 router = APIRouter(
@@ -20,8 +24,9 @@ router = APIRouter(
     }
 )
 async def register(body: RegisterRequest):
-    # TODO: implement register service
-    return body.model_dump(mode='json')
+  # TODO: implement register service
+    res = SERVICE.register()
+    return res
 
 
 @router.post(
@@ -32,4 +37,6 @@ async def register(body: RegisterRequest):
 )
 async def login(body: LoginRequest):
     # TODO: implement login service
-    return body.model_dump(mode='json')
+    res = SERVICE.login()
+    return res
+
