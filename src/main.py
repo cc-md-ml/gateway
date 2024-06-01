@@ -1,14 +1,16 @@
-from fastapi import FastAPI, File, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI
 
-from classification.services.image_prediction_service import ImagePredictionService
-
-from routes import global_router
+from src.config import setup_env
+from src.routes import global_router
 
 
 app = FastAPI(
     title="Cooleet Back-End API"
 )
+
+# load environment variables
+# return value will be cached
+setup_env()
 
 app.include_router(global_router, prefix="/api/v1")
 

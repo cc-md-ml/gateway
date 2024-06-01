@@ -1,1 +1,1 @@
-fastapi run src/main.py --port 8000 --restart 
+uvicorn src.main:app --reload --proxy-headers --host 0.0.0.0 --port 8000 
