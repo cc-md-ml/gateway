@@ -19,6 +19,6 @@ async def predict_image(file: UploadFile = File(...)):
     
     try:
         prediction = await prediction_service.predict(file)
-        return JSONResponse(content={"prediction": prediction}, status_code=200)
+        return JSONResponse(content=prediction, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
