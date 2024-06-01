@@ -33,10 +33,13 @@ jobs:
       run: |
         docker build \
             --build-arg ENVIRONMENT=${{ secrets.PRODUCTION }} \
+            --build-arg DB_HOST=${{ secrets.DB_HOST }} \
+            --build-arg DB_PORT=${{ secrets.DB_PORT }} \
+            --build-arg DB_USER=${{ secrets.DB_USER }} \
             --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            --build-arg DB_URL=${{ secrets.DB_URL }} \
-            --build-arg DB_USERNAME=${{ secrets.DB_USERNAME }} \
+            --build-arg DB_NAME=${{ secrets.DB_NAME }} \
             --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} \
+            --build-arg GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
             -t ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} \
             .  
         docker push ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
@@ -68,3 +71,4 @@ jobs:
             docker container rm -f ${{ secrets.CONTAINER_NAME }} || true &&
             docker image rm -f ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} || true &&
             docker run --name ${{ secrets.CONTAINER_NAME }} -d -p 8000:8000 --restart unless-stopped ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}"
+
