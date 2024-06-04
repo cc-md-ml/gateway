@@ -14,7 +14,14 @@ class LoginRequest(BaseModel):
 
 
 class LoginResponse(BaseModel):
-    token: str
+    kind: str
+    localId: str
+    email: str
+    displayName: str
+    idToken: str
+    registered: bool
+    refreshToken: str
+    expiresIn: int
 
 
 class AuthResponse(BaseModel):

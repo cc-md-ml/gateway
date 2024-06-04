@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from src.auth.service import AuthService
@@ -38,8 +39,8 @@ async def register(body: RegisterRequest) -> JSONResponse:
     },
 )
 async def login(body: LoginRequest) -> JSONResponse:
-    res: AuthResponse = service.login(body)
+    res: AuthResponse = await service.login(body)
     return JSONResponse(
-        content=res,
+        content=jsonable_encoder(res),
         status_code=res.status,
     )

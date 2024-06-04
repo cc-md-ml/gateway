@@ -1,9 +1,16 @@
+import json
+
 from fastapi import status
 from fastapi import HTTPException
 
 from firebase_admin import (
     auth,
     exceptions as authx,
+)
+import httpx
+
+from src.config import (
+    setup_env, get_env_value
 )
 
 from src.auth.schemas import (
@@ -12,12 +19,15 @@ from src.auth.schemas import (
 )
 
 
+setup_env()
+
+
 class AuthService():
     """
     Authentication service class for login, register, and user management.
     """
     def __init__(self):
-        pass
+        self.API_KEY = get_env_value('FIREBASE_WEB_API_KEY')
 
     def register(self, body: RegisterRequest) -> AuthResponse:
         """
@@ -25,7 +35,10 @@ class AuthService():
         """
         user: auth.UserRecord
         try:
-            user = auth.create_user(email=body.email)
+            user = auth.create_user(
+                email=body.email,
+                password=body.password
+            )
         # invalid user properties
         except ValueError:
             return AuthResponse(
@@ -44,18 +57,25 @@ class AuthService():
                 status=status.HTTP_201_CREATED,
             )
          
-    def login(self, body: LoginRequest) -> LoginResponse:
+    async def login(self, body: LoginRequest) -> LoginResponse:
         """
         Authenticates user through email and firebase.
         """
         user: auth.UserRecord
         try:
+            # check if email exists
             user = auth.get_user_by_email(body.email)
-            if user.password != body.password:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid email or password."
-                )
+            headers = { 'Content-Type': 'application/json' }
+            data = {
+                    'email': body.email,
+                    'password': body.password,
+                    'returnSecureToken': 'true'
+            }
+            response = httpx.post(
+                url=f'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={self.API_KEY}',
+                headers=headers,
+                data=json.dumps(data)
+            )
         # if credentials mismatch
         except HTTPException as ex:
             return AuthResponse(
@@ -81,15 +101,20 @@ class AuthService():
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
             )
         else:
-            token = auth.create_custom_token(
-                uid=user.uid,
-                developer_claims={
-                    "email": user.email,
-                }
+            # load json response into dict, map to  LoginResponse schema for payload
+            response_body = json.loads(response.content.decode('utf-8'))
+            payload = LoginResponse(
+                kind=response_body['kind'],
+                localId=response_body['localId'],
+                email=response_body['email'],
+                displayName=response_body['displayName'],
+                idToken=response_body['idToken'],
+                registered=response_body['registered'],
+                refreshToken=response_body['refreshToken'],
+                expiresIn=response_body['expiresIn'],
             )
-            response = LoginResponse(token=token)
             return AuthResponse(
-                payload=response,
+                payload=payload,
                 description=f"User with email {user.email} successfully logged in.",
                 status=status.HTTP_200_OK,
             )
