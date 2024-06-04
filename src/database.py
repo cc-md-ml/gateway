@@ -34,7 +34,8 @@ def init_tables():
     """
     # import models so that it is detected by sqlalchemy to export to table
     # added models to be exported to table should be imported below
-    from src.auth.models import User
+    # example:
+    # from src.auth.models import User
     # creates table
     Base.metadata.create_all(engine)
 
