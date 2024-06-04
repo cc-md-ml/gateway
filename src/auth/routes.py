@@ -27,10 +27,6 @@ router = APIRouter(
 async def register(body: RegisterRequest) -> JSONResponse:
     res: AuthResponse = service.register(body)
     return jsonable_encoder(res)
-    # return JSONResponse(
-    #     content=res.description,
-    #     status_code=res.status,
-    # )
 
 
 @router.post(
@@ -42,10 +38,6 @@ async def register(body: RegisterRequest) -> JSONResponse:
 async def login(body: LoginRequest) -> JSONResponse:
     res: AuthResponse = await service.login(body)
     return jsonable_encoder(res)
-    # return JSONResponse(
-    #     content=jsonable_encoder(res),
-    #     status_code=res.status,
-    # )
 
 
 @router.post(
