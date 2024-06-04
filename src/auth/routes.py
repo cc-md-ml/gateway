@@ -4,8 +4,8 @@ from fastapi.responses import JSONResponse
 
 from src.auth.service import AuthService
 from src.auth.schemas import (
-    RegisterRequest, LoginRequest,
-    AuthResponse, LoginResponse
+    RegisterRequest, LoginRequest, AuthResponse,
+    TokenRequest, TokenResponse
 )
 
 
@@ -26,10 +26,11 @@ router = APIRouter(
 )
 async def register(body: RegisterRequest) -> JSONResponse:
     res: AuthResponse = service.register(body)
-    return JSONResponse(
-        content=res.description,
-        status_code=res.status,
-    )
+    return jsonable_encoder(res)
+    # return JSONResponse(
+    #     content=res.description,
+    #     status_code=res.status,
+    # )
 
 
 @router.post(
@@ -40,7 +41,20 @@ async def register(body: RegisterRequest) -> JSONResponse:
 )
 async def login(body: LoginRequest) -> JSONResponse:
     res: AuthResponse = await service.login(body)
-    return JSONResponse(
-        content=jsonable_encoder(res),
-        status_code=res.status,
-    )
+    return jsonable_encoder(res)
+    # return JSONResponse(
+    #     content=jsonable_encoder(res),
+    #     status_code=res.status,
+    # )
+
+
+@router.post(
+    "/refresh-token",
+    responses={
+        401: { "description": "Token has expired." } 
+    },
+    response_model=TokenResponse
+)
+async def refresh_token(body: TokenRequest) -> JSONResponse:
+    res: TokenResponse = await service.refresh_token(body)
+    return jsonable_encoder(res)

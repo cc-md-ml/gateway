@@ -14,9 +14,10 @@ from src.config import (
 )
 
 from src.auth.schemas import (
-    RegisterRequest, LoginRequest,
-    AuthResponse, LoginResponse
+    RegisterRequest, LoginRequest, AuthResponse, LoginResponse,
+    TokenRequest, TokenResponse
 )
+from src.auth.utils import helper
 
 
 setup_env()
@@ -57,7 +58,7 @@ class AuthService():
                 status=status.HTTP_201_CREATED,
             )
          
-    async def login(self, body: LoginRequest) -> LoginResponse:
+    async def login(self, body: LoginRequest) -> AuthResponse:
         """
         Authenticates user through email and firebase.
         """
@@ -102,7 +103,7 @@ class AuthService():
             )
         else:
             # load json response into dict, map to  LoginResponse schema for payload
-            response_body = json.loads(response.content.decode('utf-8'))
+            response_body = helper.parse_response_to_dict(response=response)
             payload = LoginResponse(
                 kind=response_body['kind'],
                 localId=response_body['localId'],
@@ -118,4 +119,27 @@ class AuthService():
                 description=f"User with email {user.email} successfully logged in.",
                 status=status.HTTP_200_OK,
             )
+        
+    async def refresh_token(self, body: TokenRequest) -> TokenResponse:
+        """
+        Returns a new IDToken/AccessToken from a valid refresh token.
+        """
+        url = f'https://securetoken.googleapis.com/v1/token?key={self.API_KEY}'
+        headers = { "Content-Type": "application/x-www-form-urlencoded" }
+        data = body.model_dump()
+        response = httpx.post(
+            url=url,
+            headers=headers,
+            data=data
+        )
+        response_body = helper.parse_response_to_dict(response)
+        payload = TokenResponse(
+            expires_in=response_body['expires_in'],
+            token_type=response_body['token_type'],
+            refresh_token=response_body['refresh_token'],
+            id_token=response_body['id_token'],
+            user_id=response_body['user_id'],
+            project_id=response_body['project_id'],
+        )
+        return payload
         
