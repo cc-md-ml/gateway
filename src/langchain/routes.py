@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
 from src.langchain.service import LangChainService
 
@@ -22,5 +23,5 @@ SERVICE = LangChainService()
 async def get_disease_detail(body: str):
     # TODO: implement login service/handler
     # TODO: integrate with prediction results
-    res = await SERVICE.send_prompt()
-    return res.model_dump(mode='json')
+    res = await SERVICE.send_prompt("Melanoma", 0.95, "Other related diseases example string")
+    return JSONResponse(content=res, status_code=200)
