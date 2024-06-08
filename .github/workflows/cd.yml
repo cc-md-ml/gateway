@@ -40,6 +40,8 @@ jobs:
             --build-arg DB_NAME=${{ secrets.DB_NAME }} \
             --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} \
             --build-arg GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
+            --build-arg FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+            --build-arg SERVICE_ACCOUNT_KEY=${{ secrets.SERVICE_ACCOUNT_KEY }}
             -t ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} \
             .  
         docker push ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}

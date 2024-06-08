@@ -8,6 +8,7 @@ ARG DB_PASSWORD
 ARG DB_NAME
 ARG SECRET_KEY
 ARG GROQ_API_KEY
+ARG SERVICE_ACCOUNT_KEY
 
 ENV ENVIRONMENT ${ENVIRONMENT}
 ENV DB_HOST ${DB_HOST}
@@ -17,6 +18,7 @@ ENV DB_PASSWORD ${DB_PASSWORD}
 ENV DB_NAME ${DB_NAME}
 ENV SECRET_KEY ${SECRET_KEY}
 ENV GROQ_API_KEY ${GROQ_API_KEY}
+ENV SERVICE_ACCOUNT_KEY ${SERVICE_ACCOUNT_KEY}
 
 EXPOSE 8000
 
@@ -25,6 +27,8 @@ WORKDIR /code
 COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+
+RUN echo "$SERVICE_ACCOUNT_KEY" > service_account_key.json
 
 COPY ./src /code/src
 
