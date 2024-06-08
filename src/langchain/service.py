@@ -35,8 +35,9 @@ class LangChainService():
         """
         Sends prompt to groq based on prediction results
         # TODO: define service parameters
+        # TODO: structure llm response into payload
         """
         chain = self.prompt | self.chat
-        res = await chain.invoke({"text": "Explain what is melanoma"})
+        res = chain.invoke({"text": "Explain what is melanoma"})
         print(res.content, type(res), type(res.content))
         return res.content

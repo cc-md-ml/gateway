@@ -22,5 +22,5 @@ SERVICE = LangChainService()
 async def get_disease_detail(body: str):
     # TODO: implement login service/handler
     # TODO: integrate with prediction results
-    res = SERVICE.send_prompt()
+    res = await SERVICE.send_prompt()
     return res.model_dump(mode='json')
