@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 
+from src import database, config
 from src.auth import firebase
-from src.config import setup_env
 from src.routes import global_router
 
 
@@ -11,7 +11,10 @@ app = FastAPI(
 
 # load environment variables
 # return value will be cached
-setup_env()
+config.setup_env()
+
+# initialize database tables
+database.init_tables()
 
 # initialize firebase authentication
 firebase.init_auth()

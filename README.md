@@ -36,6 +36,8 @@
    DB_PASSWORD=<db_password>
    DB_NAME=<db_name>
 
+   FIREBASE_WEB_API_KEY=<firebase_api_key>
+
    GROQ_API_KEY=<groq_api_key>
    ```
 

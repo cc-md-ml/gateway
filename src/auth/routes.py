@@ -1,21 +1,19 @@
-from fastapi import (
-    APIRouter, Response
-)
+from fastapi import APIRouter
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 from src.auth.service import AuthService
 from src.auth.schemas import (
-    RegisterRequest, LoginRequest,
-    AuthResponse
+    RegisterRequest, LoginRequest, AuthResponse,
+    TokenRequest, TokenResponse
 )
 
 
-SERVICE = AuthService()
-
-
+service = AuthService()
 router = APIRouter(
     prefix="/auth",
     responses={ 
-        404: { "message": "Not found" } 
+        404: { "description": "Not found" } 
     },
 )
 
@@ -26,13 +24,9 @@ router = APIRouter(
         400: { "description": "Invalid registration credentials." },
     }
 )
-async def register(body: RegisterRequest) -> Response:
-    # TODO: implement register service
-    res: AuthResponse = SERVICE.register(body)
-    return Response(
-        content=res.description,
-        status_code=res.status,
-    )
+async def register(body: RegisterRequest) -> JSONResponse:
+    res: AuthResponse = service.register(body)
+    return jsonable_encoder(res)
 
 
 @router.post(
@@ -41,11 +35,18 @@ async def register(body: RegisterRequest) -> Response:
         401: { "description": "Invalid username or password." },
     },
 )
-async def login(body: LoginRequest) -> Response:
-    # TODO: implement login service
-    res = SERVICE.login(body)
-    return Response(
-        content=res.description,
-        status_code=res.status,
-    )
+async def login(body: LoginRequest) -> JSONResponse:
+    res: AuthResponse = await service.login(body)
+    return jsonable_encoder(res)
 
+
+@router.post(
+    "/refresh-token",
+    responses={
+        401: { "description": "Token has expired." } 
+    },
+    response_model=TokenResponse
+)
+async def refresh_token(body: TokenRequest) -> JSONResponse:
+    res: TokenResponse = await service.refresh_token(body)
+    return jsonable_encoder(res)
