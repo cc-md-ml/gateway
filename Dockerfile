@@ -28,7 +28,7 @@ COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-RUN echo "$SERVICE_ACCOUNT_KEY" > service_account_key.json
+ADD ${SERVICE_ACCOUNT_KEY} ./
 
 COPY ./src /code/src
 
