@@ -14,7 +14,9 @@ from src.config import (
 )
 
 from src.auth.schemas import (
-    RegisterRequest, LoginRequest, AuthResponse, LoginResponse,
+    RegisterRequest, 
+    LoginRequest, LoginBody, LoginResponse,
+    AuthResponse,
     TokenRequest, TokenResponse
 )
 from src.auth.utils import helper
@@ -38,7 +40,8 @@ class AuthService():
         try:
             user = auth.create_user(
                 email=body.email,
-                password=body.password
+                password=body.password,
+                display_name=body.name
             )
         # invalid user properties
         except ValueError:
@@ -104,7 +107,7 @@ class AuthService():
         else:
             # load json response into dict, map to  LoginResponse schema for payload
             response_body = helper.parse_response_to_dict(response=response)
-            payload = LoginResponse(
+            payload = LoginBody(
                 kind=response_body['kind'],
                 localId=response_body['localId'],
                 email=response_body['email'],
@@ -114,7 +117,7 @@ class AuthService():
                 refreshToken=response_body['refreshToken'],
                 expiresIn=response_body['expiresIn'],
             )
-            return AuthResponse(
+            return LoginResponse(
                 payload=payload,
                 description=f"User with email {user.email} successfully logged in.",
                 status=status.HTTP_200_OK,

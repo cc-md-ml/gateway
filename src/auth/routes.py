@@ -4,7 +4,9 @@ from fastapi.responses import JSONResponse
 
 from src.auth.service import AuthService
 from src.auth.schemas import (
-    RegisterRequest, LoginRequest, AuthResponse,
+    AuthResponse,
+    RegisterRequest, 
+    LoginRequest, LoginResponse, 
     TokenRequest, TokenResponse
 )
 
@@ -20,32 +22,33 @@ router = APIRouter(
 
 @router.post(
     "/register",
-    responses={
-        400: { "description": "Invalid registration credentials." },
-    }
+    response_model=AuthResponse, 
+    description="**For example response values:** [Click Here](https://firebase.google.com/docs/reference/rest/auth)",
+    
 )
 async def register(body: RegisterRequest) -> JSONResponse:
-    res: AuthResponse = service.register(body)
+    res: AuthResponse = await service.register(body)
     return jsonable_encoder(res)
 
 
 @router.post(
     "/login",
-    responses={ 
-        401: { "description": "Invalid username or password." },
-    },
+    response_model=LoginResponse,
+    description="**For example response values:** [Click Here](https://firebase.google.com/docs/reference/rest/auth)",
 )
 async def login(body: LoginRequest) -> JSONResponse:
-    res: AuthResponse = await service.login(body)
+    res: LoginResponse = await service.login(body)
     return jsonable_encoder(res)
 
 
 @router.post(
     "/refresh-token",
-    responses={
-        401: { "description": "Token has expired." } 
-    },
-    response_model=TokenResponse
+    response_model=TokenResponse,
+    description="""
+    **For example response values:** [Click Here](https://firebase.google.com/docs/reference/rest/auth)
+
+`grant_type` field should always be `refresh_token`.
+    """,
 )
 async def refresh_token(body: TokenRequest) -> JSONResponse:
     res: TokenResponse = await service.refresh_token(body)
