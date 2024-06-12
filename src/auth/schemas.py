@@ -8,7 +8,7 @@ class AuthRequest(BaseModel):
     password: str = "String1234"
 
 class RegisterRequest(AuthRequest):
-    pass
+    name: str
 
 
 class LoginRequest(AuthRequest):

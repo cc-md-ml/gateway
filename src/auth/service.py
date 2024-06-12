@@ -40,7 +40,8 @@ class AuthService():
         try:
             user = auth.create_user(
                 email=body.email,
-                password=body.password
+                password=body.password,
+                display_name=body.name
             )
         # invalid user properties
         except ValueError:
