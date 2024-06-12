@@ -30,7 +30,7 @@ jobs:
       run: export DOCKER_BUILDKIT=1
 
     - name: Create Service Account Key JSON File
-      run: echo "${{ secrets.SERVICE_ACCOUNT_KEY }}" > service_account_key.json
+      run: echo '${{ secrets.SERVICE_ACCOUNT_KEY }}' > service_account_key.json
 
     - name: Build & Publish Docker Image
       run: |
