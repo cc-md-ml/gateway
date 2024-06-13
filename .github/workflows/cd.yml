@@ -48,7 +48,7 @@ jobs:
             --build-arg GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
             --build-arg BUCKET_NAME=${{ secrets.BUCKET_NAME }} \
             --build-arg BUCKET_FOLDER=${{ secrets.BUCKET_FOLDER }} \
-            --build-arg MODEL_API_URL= ${{ secrets.MODEL_API_URL }} \
+            --build-arg MODEL_API_URL=${{ secrets.MODEL_API_URL }} \
             --build-arg FIREBASE_WEB_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
             --build-arg SERVICE_ACCOUNT_KEY=service_account_key.json \
             --build-arg BUCKET_SERVICE_ACCOUNT_KEY=bucket_service_account_key.json \
