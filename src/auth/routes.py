@@ -27,7 +27,7 @@ router = APIRouter(
     
 )
 async def register(body: RegisterRequest) -> JSONResponse:
-    res: AuthResponse = await service.register(body)
+    res: AuthResponse = service.register(body)
     return jsonable_encoder(res)
 
 
