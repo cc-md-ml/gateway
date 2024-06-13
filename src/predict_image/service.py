@@ -86,7 +86,7 @@ class PredictImageService():
             # Handle label not found in model API response
             if 'message' in model_response:
                 message = model_response.get('message')
-                raise HTTPException(status_code=422, detail="Model unable to confidently predict the disease")
+                raise HTTPException(status_code=422, detail="Model unable to predict the disease")
             else:
                 message = model_response.get('detail')
                 raise HTTPException(status_code=400, detail=message)
