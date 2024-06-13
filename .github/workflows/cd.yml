@@ -31,6 +31,9 @@ jobs:
 
     - name: Create Service Account Key JSON File
       run: echo '${{ secrets.SERVICE_ACCOUNT_KEY }}' > service_account_key.json
+    
+    - name: Create Bucket Service Account Key JSON File
+      run: echo '${{ secrets.BUCKET_SERVICE_ACCOUNT_KEY }}' > bucket_service_account_key.json
 
     - name: Build & Publish Docker Image
       run: |
@@ -43,8 +46,12 @@ jobs:
             --build-arg DB_NAME=${{ secrets.DB_NAME }} \
             --build-arg SECRET_KEY=${{ secrets.SECRET_KEY }} \
             --build-arg GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
+            --build-arg BUCKET_NAME=${{ secrets.BUCKET_NAME }} \
+            --build-arg BUCKET_FOLDER=${{ secrets.BUCKET_FOLDER }} \
+            --build-arg MODEL_API_URL=${{ secrets.MODEL_API_URL }} \
             --build-arg FIREBASE_WEB_API_KEY=${{ secrets.FIREBASE_API_KEY }} \
             --build-arg SERVICE_ACCOUNT_KEY=service_account_key.json \
+            --build-arg BUCKET_SERVICE_ACCOUNT_KEY=bucket_service_account_key.json \
             -t ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }} \
             .  
         docker push ${{ secrets.REGISTRY_USER }}/${{ secrets.IMAGE_NAME }}:${{ secrets.IMAGE_TAG }}
