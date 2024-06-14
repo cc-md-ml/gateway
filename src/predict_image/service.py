@@ -9,6 +9,7 @@ import time
 from functools import wraps
 
 from fastapi import UploadFile, HTTPException
+from typing import List
 from src.langchain.schemas import (
     PromptRequest, PromptResponse
 )
@@ -16,12 +17,17 @@ from src.langchain.service import LangChainService
 from src.config import (
     setup_env, get_env_value
 )
+from src.predict_image.models import PredictionResult
+from src.database import get_db
+from src.predict_image.schemas import PredictImageResponse
+
 setup_env()
 
 
 
 class PredictImageService():
     def __init__(self):
+        self.db = next(get_db())
         self.BUCKET_NAME = get_env_value('BUCKET_NAME')
         self.langchain_service = LangChainService()
         self.BUCKET_FOLDER = get_env_value('BUCKET_FOLDER')
@@ -66,7 +72,7 @@ class PredictImageService():
         return img_unique_name
     
     @timer
-    async def upload_and_get_detail(self, image: UploadFile) -> PromptResponse:
+    async def upload_and_get_detail(self, image: UploadFile, user: dict) -> PredictImageResponse:
         """
         Uploads image to Google Cloud Storage and returns its details.
         """
@@ -96,10 +102,53 @@ class PredictImageService():
         prompt = PromptRequest(disease=prediction_result)
         try:
             disease_detail = await self.langchain_service.send_prompt(prompt)
+            
+
         except Exception as e:
         # Handle any errors from langchain_service
             raise HTTPException(status_code=500, detail=f"Failed to get disease detail: {str(e)}")
-        return disease_detail
+        
+        # Save prediction result to database
+        prediction = PredictionResult(user_email=user['email'], 
+                        disease=model_response.get('label'),
+                        probability=model_response.get('probability'),
+                        id = uuid.uuid4().hex,
+                        image_name=image_name, 
+                        description=disease_detail.description,
+                        symptoms=disease_detail.symptoms,
+                        treatment=disease_detail.treatment,
+                        contagiousness=disease_detail.contagiousness,
+                        prevalence=disease_detail.prevalence
+                        )
+        self.db.add(prediction)
+        self.db.commit()
+        prediction_dict = prediction.to_dict()
+
+        # Create PredictImageResponse instance from dictionary
+        prediction_response = PredictImageResponse(**prediction_dict)
+        return prediction_response
+
+    @timer
+    async def get_prediction_history(self, user: dict):
+        """
+        Returns the prediction history of the user.
+        """
+        prediction_results: List[PredictionResult] = self.db.query(PredictionResult).filter(PredictionResult.user_email == user["email"]).all()
+        serialized_results = [result.to_dict() for result in prediction_results]
+        return serialized_results
+    
+    @timer
+    async def get_prediction_by_id(self, id: str, user: dict) -> PredictImageResponse:
+        """
+        Returns the prediction details by id.
+        """
+        prediction_result: PredictionResult = self.db.query(PredictionResult).filter(PredictionResult.id == id).first()
+        if prediction_result is None:
+            raise HTTPException(status_code=404, detail="Prediction not found.")
+        if prediction_result.user_email != user["email"]:
+            raise HTTPException(status_code=403, detail="User not authorized to access this prediction.")
+        prediction_dict = prediction_result.to_dict()
+        return PredictImageResponse(**prediction_dict)
 
     @timer
     async def _call_model_api(self, image_name: str):
