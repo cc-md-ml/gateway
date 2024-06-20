@@ -32,7 +32,7 @@ class AuthResponse(BaseModel):
 
 
 class LoginResponse(AuthResponse):
-    payload: LoginBody
+    payload: Optional[LoginBody] = None
 
 class TokenRequest(BaseModel):
     grant_type: str = "refresh_token"   # should always be 'refresh_token'
