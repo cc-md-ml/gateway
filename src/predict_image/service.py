@@ -120,13 +120,24 @@ class PredictImageService():
                         contagiousness=disease_detail.contagiousness,
                         prevalence=disease_detail.prevalence
                         )
-        self.db.add(prediction)
-        self.db.commit()
-        prediction_dict = prediction.to_dict()
+        max_attempts = 3
+        attempts = 0
 
-        # Create PredictImageResponse instance from dictionary
-        prediction_response = PredictImageResponse(**prediction_dict)
+        while attempts < max_attempts:
+            try:
+                self.db.add(prediction)
+                self.db.commit()
+                break
+            except Exception as e:
+                self.db.rollback()
+                attempts += 1
+                if attempts == max_attempts:
+                    raise HTTPException(status_code=500, detail=f"Failed to save prediction to database: {str(e)}")
+                time.sleep(2)
+        
+        prediction_response = PredictImageResponse(**prediction.to_dict())
         return prediction_response
+
 
     @timer
     async def get_prediction_history(self, user: dict):
